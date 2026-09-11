@@ -1,0 +1,8 @@
+Customer Name: Global Pharma Distributors
+Source: Phone Call
+
+We received a complaint today regarding Atorvastatin 20mg Tablets. The customer reported that the blister packs inside the carton are crumpled and some tablets are crushed. 
+Batch: ATV-0925-XX
+Quantity affected: 1500 boxes
+Origin site: Packaging
+It seems to be a primary packaging defect. We need this investigated before shipping the rest of the batch.

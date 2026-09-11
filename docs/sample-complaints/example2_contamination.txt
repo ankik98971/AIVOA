@@ -1,0 +1,17 @@
+Complaint ID: CC-2026-00154
+Date Received: September 10, 2026
+
+Customer Information:
+Customer Name: ABC Formulations Ltd.
+Contact Method: Email
+
+Product Details:
+Product Name: Metformin Hydrochloride API
+Grade: IP/BP
+Batch Number: MFH260712A
+Manufacturing Date: 25 June 2026
+Affected Quantity: 25 kg (1 HDPE Drum)
+Originating Site Block: Manufacturing
+
+Issue Description:
+During dispensing in the ABC Formulations warehouse, the operator noticed black foreign matter contamination inside the inner PE liner of the drum. We have quarantined the remaining 24 drums from this batch and request an immediate investigation.
