@@ -1,9 +1,11 @@
 from fastapi import FastAPI, Depends, UploadFile, File, Form, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
-from . import models, schemas
-from .database import engine, get_db
-from .document_parser import extract_text
+from pydantic import BaseModel
+import models
+import schemas
+from database import engine, get_db
+from document_parser import extract_text
 
 # Create DB tables. We keep it simple without Alembic migrations for Phase 1.
 models.Base.metadata.create_all(bind=engine)
