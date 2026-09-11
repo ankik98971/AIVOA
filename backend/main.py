@@ -106,7 +106,7 @@ async def chat_with_copilot(req: ChatRequest):
     Accepts the user's message + current form state, runs it through LangGraph,
     and returns the updated form and a description_stale flag if relevant fields changed.
     """
-    from .graph import copilot_graph
+    from graph import copilot_graph
     from langchain_core.messages import HumanMessage
 
     state = {
