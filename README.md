@@ -158,3 +158,8 @@ AIVOA/
     assignment-brief.md
     interview-prep/            Phase-by-phase decision log
 ```
+
+## Demo Videos
+
+- **Feature Walkthrough:** https://drive.google.com/file/d/1Vx42q3gpjaRWsSoBwQd5IlDyBZlDpnw-/view?usp=drive_link
+- **Code Walkthrough:** https://drive.google.com/file/d/1ISD3dzyBmc2BkW2GYu9u2kziKY3r8Oxt/view?usp=sharing
