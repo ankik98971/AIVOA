@@ -82,12 +82,50 @@ inside `backend/`), which was a real point of confusion earlier in the build
 and is worth keeping explicit for anyone (including future-you) running this
 from scratch.
 
-## One thing to verify, not just document
-The README's Key Design Decisions section states that `originating_site_block`
-is protected by a deterministic Python keyword-scan guard in `graph.py`, on
-top of the prompt-level instruction from Phase 3, because `openai/gpt-oss-20b`
-wasn't reliably deterministic at temperature=0 for that field on Groq's
-infrastructure. This is a reasonable and well-motivated fix if it's actually
-implemented — but it wasn't reviewed as part of Phase 3 or 4's approval, and
-its existence should be confirmed directly in `graph.py` before relying on it
-as a talking point in an interview.
+## The `originating_site_block` deterministic guard — verified, and a bug found and fixed
+The README's claim about a keyword-scan guard in `graph.py` is real. It lives
+in `new_complaint_node`, right after the LLM extraction call:
+
+```python
+VALID_SITE_BLOCKS = ["Manufacturing", "Packaging", "Warehouse", "QC Lab"]
+site_value = extracted_data.get("originating_site_block", "Not Provided")
+if site_value not in VALID_SITE_BLOCKS or site_value.lower() not in latest_msg.lower():
+    extracted_data["originating_site_block"] = "Not Provided"
+```
+
+**Why it exists:** `openai/gpt-oss-20b` isn't fully deterministic at
+temperature=0 on Groq's infrastructure, and the model was found to infer a
+plausible-but-unstated site from context clues (e.g. seeing "drum" and
+guessing "Packaging"). A prompt instruction alone ("only use a value if
+explicitly stated") wasn't reliable enough on its own, so a second,
+non-LLM layer was added: after extraction, plain Python checks whether the
+site value the model chose is actually one of the four valid options *and*
+literally appears in the source text — if not, it's force-overwritten to
+"Not Provided," with no model call involved in that decision.
+
+**A real bug was found and fixed in this guard during review.** The original
+version checked whether *any* of the four valid keywords appeared *anywhere*
+in the text, not whether the *specific value the model chose* was supported:
+```python
+# The original, buggy version:
+site_mentioned = any(kw.lower() in latest_msg.lower() for kw in VALID_SITE_BLOCKS)
+if not site_mentioned:
+    extracted_data["originating_site_block"] = "Not Provided"
+```
+This meant a complaint could mention "packaging" in a completely unrelated
+sense — e.g. describing *damaged packaging material*, not the *originating
+site* — and the guard would see that keyword present, conclude "a site was
+mentioned," and let through a hallucinated, unrelated value like
+"Manufacturing" for the site field, even though "Manufacturing" itself never
+appeared anywhere in the text. This is exactly the failure mode the guard was
+built to prevent, just approached from a different angle than the original
+"packaging bug" that motivated building the guard in the first place.
+
+The fix changes the check from "does any valid keyword exist somewhere" to
+"does the specific extracted value exist, verbatim, in the source text."
+A new regression test (`test_graph.py`, Example 4) exercises this exact case
+— a complaint describing "crushed primary packaging" as damaged material and
+a vague reference to a "formulation facility" (a strong distractor phrase
+likely to tempt an LLM into guessing "Manufacturing") — and confirms the
+guard now correctly forces "Not Provided" instead of letting a hallucinated
+value through.
