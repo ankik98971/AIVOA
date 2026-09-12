@@ -107,8 +107,8 @@ Return strictly valid JSON matching the schema keys above. No markdown fences, n
     # We override its answer unless one of the four valid values appears literally in the
     # source text. This is a simple string scan — no LLM involved, always reproducible.
     VALID_SITE_BLOCKS = ["Manufacturing", "Packaging", "Warehouse", "QC Lab"]
-    site_mentioned = any(kw.lower() in latest_msg.lower() for kw in VALID_SITE_BLOCKS)
-    if not site_mentioned:
+    site_value = extracted_data.get("originating_site_block", "Not Provided")
+    if site_value not in VALID_SITE_BLOCKS or site_value.lower() not in latest_msg.lower():
         extracted_data["originating_site_block"] = "Not Provided"
 
     return {

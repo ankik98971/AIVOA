@@ -104,3 +104,36 @@ if __name__ == "__main__":
     else:
         print(f"❌ FAIL: originating_site_block = '{site_val}' — guard did not fire.")
         print("   Check that graph.py was saved and __pycache__ is not stale.")
+
+print("""
+=====================================================
+Testing Example 4: Site-Block Guard (keyword-elsewhere regression test)
+Complaint text mentions "packaging" only as a damaged
+MATERIAL, not a site, and hints at a different facility
+without using any of the four exact valid keywords.
+EXPECTED: originating_site_block == "Not Provided"
+This specifically regression-tests the bug where the old
+guard checked for ANY valid keyword anywhere in the text,
+rather than checking the SPECIFIC value the LLM extracted.
+=====================================================
+""")
+guard_test_msg_2 = (
+    "Orion Labs received a complaint about crushed primary packaging on a "
+    "shipment of Paracetamol Tablets, batch OR-2201. The batch was produced "
+    "at our main formulation facility. Customer contacted via phone."
+)
+
+state_6 = {
+    "messages": [HumanMessage(content=guard_test_msg_2)],
+    "current_form": {}
+}
+
+result_6 = copilot_graph.invoke(state_6)
+print_result(result_6)
+
+site_val_2 = result_6["current_form"].get("originating_site_block", "")
+if site_val_2 == "Not Provided":
+    print("✅ PASS: guard correctly ignored the unrelated 'packaging' keyword and forced 'Not Provided'.")
+else:
+    print(f"❌ FAIL: originating_site_block = '{site_val_2}' — guard let an unsupported value through.")
+    print("   This means the guard is still checking for ANY keyword's presence, not the SPECIFIC extracted value.")
